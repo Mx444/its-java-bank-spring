@@ -1,6 +1,5 @@
 package com.example.bankapi.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,42 +13,36 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.bankapi.models.ContoBancario;
-import com.example.bankapi.repositories.ContoRepository;
+import com.example.bankapi.providers.ContoService;
 
 @RestController
 @RequestMapping("/conti")
 public class ContoController {
-
     @Autowired
-    private ContoRepository contoRepository;
+    private ContoService contoService = new ContoService();
 
     @GetMapping
     public List<ContoBancario> getTuttiIConti() {
-        return contoRepository.findAll();
+        return contoService.findAll();
     }
 
     @PostMapping
-    public ContoBancario aggiungiConto(@RequestBody ContoBancario conto) {
-        return contoRepository.save(conto);
+    public String aggiungiConto(@RequestBody ContoBancario conto) {
+        return contoService.create(conto);
     }
 
     @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
-        if (contoRepository.existsById(id)) {
-            contoRepository.deleteById(id);
-            return "Conto eliminato.";
-        } else {
-            return "Conto non trovato.";
-        }
+        return contoService.delete(id);
     }
 
     @GetMapping("/ricerca")
     public List<ContoBancario> ricercaPerNome(@RequestParam String nome) {
-        return contoRepository.findByIntestatarioContainingIgnoreCase(nome);
+        return contoService.findByName(nome);
     }
 
     @GetMapping("/tipo")
     public List<ContoBancario> filtraPerTipo(@RequestParam String tipo) {
-        return contoRepository.findByTipoConto(tipo);
+        return contoService.filterByType(tipo);
     }
 }
